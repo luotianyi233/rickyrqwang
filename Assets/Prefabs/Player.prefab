@@ -2022,6 +2022,7 @@ GameObject:
   - component: {fileID: 5832700825899211424}
   - component: {fileID: 8073099473431408594}
   - component: {fileID: 3736018405606950707}
+  - component: {fileID: -7829820992672438693}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -2109,10 +2110,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Camera1: {fileID: 0}
   Camera2: {fileID: 0}
-  runJoystick: 332
-  runKeyboard: 304
-  jumpJoystick: 333
-  jumpKeyboard: 32
   rightHandAttachPoint: {fileID: 0}
   leftHandAttachPoint: {fileID: 0}
   playerNO: 0
@@ -2141,6 +2138,26 @@ CapsuleCollider:
   m_Height: 1.8
   m_Direction: 1
   m_Center: {x: 0, y: 0.895, z: 0}
+--- !u!114 &-7829820992672438693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8166901639594507275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 130ab5adaf4034a40ac4fe2da3394494, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IKLayer:
+    serializedVersion: 2
+    m_Bits: 16384
+  raycastOffset: 0
+  raycastDist: 0.1
+  IKEnabled: 1
+  IKSphereRadius: 0.05
+  posSpehereRadius: 0.05
 --- !u!1 &8196261258034605218
 GameObject:
   m_ObjectHideFlags: 0
