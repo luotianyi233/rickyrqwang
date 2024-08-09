@@ -11,12 +11,6 @@ public class PlayerController : MonoBehaviour
     private Rigidbody rb;
     private CapsuleCollider playerCollider;
 
-    //奔跑跳跃键设置(已废弃）
-    public KeyCode runJoystick = KeyCode.JoystickButton2;
-    public KeyCode runKeyboard = KeyCode.LeftShift;
-    public KeyCode jumpJoystick = KeyCode.JoystickButton3;
-    public KeyCode jumpKeyboard = KeyCode.Space;
-
     //相机旋转设置
     private Quaternion freeRot; //自由旋转
 
@@ -38,23 +32,23 @@ public class PlayerController : MonoBehaviour
     private bool isRun;     //是否奔跑
     private bool isJumping;     //是否在跳跃
     private bool isGround;    //是否在地上
-    private bool isFall; //是否落地
+    private bool isFall; //是否落地（已废弃）
     private bool isRightHoldButtonPressed;   //是否按下右手抓取按键
     private bool isLeftHoldButtonPressed;   //是否按下左手抓取按键
     private bool isRightHold; //是否正在用右手抓持物体
     private bool isLeftHold; //是否正在用左手抓持物体
     private float moveSpeed;    //移动速度
     private float jumpForce;    //跳跃力
-    private bool readyToJump;   //冷却完成标志
-    private bool hasJumped; //跳跃开始标志
-    private float jumpCD;   //跳跃冷却
+    private bool readyToJump;   //冷却完成标志（已废弃）
+    private float jumpCD;   //跳跃冷却（已废弃）
     public PhysicMaterial noFriction;
     public PhysicMaterial defaultFriction;
 
     private float horizontal;   //水平方向
     private float vertical;     //垂直方向
-    private float groundCheckOffset = 0.05f;  //地面检测偏移量
+    private float groundCheckOffset = 0.5f;  //地面检测偏移量
     private int ropeLayerMask;
+    private int playerLayerMask;
 
     void Start()
     {
@@ -62,7 +56,7 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         moveableLayer = LayerMask.GetMask("Moveable"); 
         ropeLayerMask = LayerMask.GetMask("Rope");  // 忽略绳子层的碰撞检测
-        ropeLayerMask =~ropeLayerMask;
+        ropeLayerMask = ~ropeLayerMask;
 
         //人物属性初始化
         playerCollider= GetComponent<CapsuleCollider>();
@@ -71,9 +65,8 @@ public class PlayerController : MonoBehaviour
         tarDir = Vector3.zero;
         isRun = false;
         moveSpeed = 0f;
-        jumpForce = 600f;
+        jumpForce = 700f;
         readyToJump = true;
-        hasJumped = false;
         jumpCD = 1f;
     }
 
@@ -81,12 +74,8 @@ public class PlayerController : MonoBehaviour
     {
         PlayerMoving();
         PlayerJumping();
-    }
-    private void Update()
-    {
-        ActionDetection();
         GroundDetection();
-        //CaculateCameraToPlayer();
+        ActionDetection();
     }
 
     private void GroundDetection()
@@ -100,13 +89,14 @@ public class PlayerController : MonoBehaviour
         {
             isFall = false;
             isGround = true;
-            hasJumped = false;
+            animator.SetBool("isGround", true);
             playerCollider.material=defaultFriction;
             Debug.DrawLine(castOrigin,castOrigin+Vector3.down*hit.distance,Color.red);
         }
         else
         {
             isGround = false;
+            animator.SetBool("isGround", false);
             isFall = true;
             playerCollider.material = noFriction;
             Debug.DrawLine(castOrigin,castOrigin+Vector3.down*castDistance,Color.green);
@@ -119,11 +109,11 @@ public class PlayerController : MonoBehaviour
         isRun = ((Input.GetButton("Player" + playerNO + "Run") || Input.GetButton("Player" + playerNO + "Run")) && (horizontal != 0 || vertical != 0) && isGround);
         animator.SetBool("isRunning", isRun);
 
-        isJumping = ((Input.GetButton("Player" + playerNO + "Jump") || Input.GetButton("Player" + playerNO + "Jump")) && isGround && readyToJump && (!isRightHold || !isLeftHold));
+        isJumping = ((Input.GetButton("Player" + playerNO + "Jump") || Input.GetButton("Player" + playerNO + "Jump"))) && isGround  && !isRightHold && !isLeftHold && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")&& !animator.GetCurrentAnimatorStateInfo(0).IsName("Float");
         animator.SetBool("isJumping", isJumping);
 
-        isRightHoldButtonPressed = ((Input.GetButton("Player" + playerNO + "RightHold") || Input.GetButton("Player" + playerNO + "RightHold")) && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")) && !isLeftHoldButtonPressed;
-        isLeftHoldButtonPressed = ((Input.GetButton("Player" + playerNO + "LeftHold") || Input.GetButton("Player" + playerNO + "LeftHold")) && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")) && !isRightHoldButtonPressed;
+        isRightHoldButtonPressed = ((Input.GetButton("Player" + playerNO + "RightHold") || Input.GetButton("Player" + playerNO + "RightHold"))) && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump") && !isLeftHoldButtonPressed;
+        isLeftHoldButtonPressed = ((Input.GetButton("Player" + playerNO + "LeftHold") || Input.GetButton("Player" + playerNO + "LeftHold"))) && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump") && !isRightHoldButtonPressed;
 
         if (isRightHoldButtonPressed || isLeftHoldButtonPressed)
         {
@@ -147,31 +137,44 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        //如果有落地动作，必须让角色不能移动（不然就会在落地动作执行时滑行），但是短暂的不可移动会带给连续跳跃卡顿感
-        //因此目前在animator中暂时不过渡到ifFall，未来可能会放弃这个动作
+        /*已废弃落地动作：如果有落地动作，必须让角色不能移动（不然就会在落地动作执行时滑行），但是短暂的不可移动会带给连续跳跃卡顿感
         isFall = (isGround && rb.velocity.y < 0);
         animator.SetBool("isFall", isFall);
+        */
     }
 
     private void HoldMoveableObject(bool isHoldButtonPressed,bool isLeft)
     {
         if (isHoldButtonPressed)
         {
-            GameObject moveableObject = isLeft? MovebaleObject(playerTransform, -playerTransform.right) :  MovebaleObject(playerTransform, playerTransform.right);
+            GameObject moveableObject = isLeft ? MovebaleObject(playerTransform, -playerTransform.right) : MovebaleObject(playerTransform, playerTransform.right);
             if (moveableObject != null)
             {
-                moveableObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
-
+                //moveableObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
+                moveableObject.GetComponent<Collider>().isTrigger = true;
                 if (joint == null)
                 {
-                    joint = moveableObject.AddComponent<FixedJoint>();
                     moveableObject.transform.position = isLeft ?
                         new Vector3(leftHandAttachPoint.transform.position.x, moveableObject.transform.position.y, leftHandAttachPoint.transform.position.z) :
                         new Vector3(rightHandAttachPoint.transform.position.x, moveableObject.transform.position.y, rightHandAttachPoint.transform.position.z);
-                        
-                    joint.connectedBody = isLeft? leftHandAttachPoint:rightHandAttachPoint;
-                }
-                moveableObject.GetComponent<Collider>().isTrigger = true;
+
+                    moveableObject.transform.rotation = isLeft ?
+                        leftHandAttachPoint.rotation :
+                        rightHandAttachPoint.rotation;
+
+                    joint = moveableObject.AddComponent<FixedJoint>();
+
+                    joint.connectedBody = isLeft ? leftHandAttachPoint : rightHandAttachPoint;
+
+                    joint.connectedMassScale = 0.0045f;
+
+                    joint.autoConfigureConnectedAnchor = false ;
+                    joint.anchor = new Vector3(0, -0.5f, 0);
+                    joint.connectedAnchor = Vector3.zero;
+
+
+            }
+                
 
                 if (isLeft)
                 {
@@ -214,8 +217,11 @@ public class PlayerController : MonoBehaviour
             Debug.Log("检测到可抓取物体");
             boxHitNormal = hit.normal;
 
-            //如果物体法线与玩家左侧/右侧朝向夹角大于60度
-            if (Vector3.Angle(-boxHitNormal, handDirection) > 60f)   
+            GameObject gameObject = hit.collider.gameObject;
+            return gameObject;
+
+            /*废弃：如果物体法线与玩家左侧/右侧朝向夹角大于45度
+            if (Vector3.Angle(-boxHitNormal, handDirection) > 45f)   
             {
                 return null;
             }
@@ -224,7 +230,7 @@ public class PlayerController : MonoBehaviour
             {
                 GameObject gameObject=hit.collider.gameObject;
                 return gameObject;
-            }
+            }*/
 
         }
         return null;
@@ -261,7 +267,7 @@ public class PlayerController : MonoBehaviour
             transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(eular), turnSpeed * Time.deltaTime);       //缓动旋转
 
             //人物移动更新
-            if(isGround && !animator.GetCurrentAnimatorStateInfo(0).IsName("Fall")&&!hasJumped)
+            if(isGround && !animator.GetCurrentAnimatorStateInfo(0).IsName("Float"))
                 rb.velocity = new Vector3((moveSpeed * tarDir).x,rb.velocity.y, (moveSpeed * tarDir).z);
         }
         else 
@@ -272,22 +278,21 @@ public class PlayerController : MonoBehaviour
 
     private void PlayerJumping()
     {
-        if (isJumping && readyToJump)   
+        if (isJumping && isGround)   
         {
-            hasJumped = true;
-            StartCoroutine(Jump());
-            rb.velocity = new Vector3( 3f * rb.velocity.x, rb.velocity.y, 3f * rb.velocity.z); // FIXME:xz轴加速有时候无效
+            //StartCoroutine(Jump());
+            rb.velocity = new Vector3( 1.5f * rb.velocity.x, 0, 1.5f * rb.velocity.z); // FIXME:xz轴加速有时候无效
             rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
             playerCollider.material = noFriction;
         }
     }
 
-    IEnumerator Jump()
+    /*IEnumerator Jump()//跳跃cd废除
     {
         readyToJump = false;
         yield return new WaitForSeconds(jumpCD);
         readyToJump = true;
-    }
+    }*/
 
     private void UpdatePlayerDirection()
     {

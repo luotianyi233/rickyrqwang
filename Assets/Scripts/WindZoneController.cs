@@ -5,14 +5,17 @@ using UnityEngine;
 
 public class WindZoneController : Switchable
 {
-    public float floatPower = 10f;
-    public float floatHeight = 5f;
-    public Vector3 tarSpeed;
+    public float floatPower = 15f;
+    public float floatHeight = 8f;
+    public float tarSpeed = 2f;
+    public Vector3 tarDir;
     private bool isClose;   //风场关闭标志
     private Collider other;
     public GameObject windZonePrefab;
     public Transform windZonePoint;
     private GameObject wind;
+
+
 
     private void Start()
     {
@@ -21,52 +24,71 @@ public class WindZoneController : Switchable
 
     private void OnTriggerEnter(Collider other)
     {
-        if((other.tag == "Player" || other.tag == "Moveable")&&!isClose)
+        if((other.tag == "Player"|| other.tag == "Moveable") &&!isClose)
         {
             Rigidbody rb = other.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.useGravity = false;
-                tarSpeed = new Vector3(rb.velocity.x,0,rb.velocity.z);
+                tarDir = (rb.gameObject.transform.forward).normalized;
+                if (other.tag == "Player")
+                    rb.velocity = new Vector3(tarSpeed * tarDir.x, 0f, tarSpeed * tarDir.z);
             }
         }
     }
     private void OnTriggerStay(Collider other)
     {
-        if ((other.tag == "Player" || other.tag == "Moveable")&&!isClose)
+        if ((other.tag == "Player" || other.tag == "Moveable" ) &&!isClose)
         {
             Rigidbody rb = other.GetComponent<Rigidbody>();
 
             if (rb != null)
             {
-                tarSpeed = new Vector3(rb.velocity.x, tarSpeed.y, rb.velocity.z);
 
                 //暂时取消人物重力，增加风场表现
-                rb.useGravity =  false ;  
+                rb.useGravity =  false ;
+                if (other.tag == "Player")
+                {
+                    rb.gameObject.GetComponent<Animator>().ResetTrigger("leaveWind");
+                    rb.gameObject.GetComponent<Animator>().SetTrigger("enterWind");
+                }
 
                 float heightDif = floatHeight - other.transform.position.y;
                 if (heightDif > 0)
                 {   
                     rb.AddForce(Vector3.up * floatPower * heightDif, ForceMode.Acceleration);   //风场的持续上升推力
-                    rb.velocity = new Vector3(tarSpeed.x, rb.velocity.y, tarSpeed.z);   //进入风场后无法改变方向，因此继承玩家刚进入风场时的速度
+                    tarDir = (rb.gameObject.transform.forward).normalized;
+                    if(other.tag=="Player")
+                        rb.velocity = new Vector3(tarSpeed*tarDir.x, rb.velocity.y, tarSpeed * tarDir.z);
+                    //rb.velocity = new Vector3(tarSpeed.x, rb.velocity.y, tarSpeed.z);   //进入风场后无法改变方向，因此继承玩家刚进入风场时的速度
                 }
             }
         }
-        else if((other.tag == "Player" || other.tag == "Moveable") && isClose)
+        else if((other.tag == "Player" || other.tag == "Moveable" ) && isClose)
         {
             Rigidbody rb = other.GetComponent<Rigidbody>();
             rb.useGravity = true;
+            if (other.tag == "Player")
+            {
+                rb.gameObject.GetComponent<Animator>().ResetTrigger("enterWind");
+                rb.gameObject.GetComponent<Animator>().SetTrigger("leaveWind");
+            }
         }
     }
 
     private void OnTriggerExit(Collider other) 
     {
-        if ((other.tag == "Player"||other.tag == "Moveable")&&!isClose)
+        if ((other.tag == "Player"||other.tag == "Moveable" ) &&!isClose)
         {
             Rigidbody rb = other.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.useGravity = true;
+                if (other.tag == "Player")
+                {
+                    rb.gameObject.GetComponent<Animator>().ResetTrigger("enterWind");
+                    rb.gameObject.GetComponent<Animator>().SetTrigger("leaveWind");
+                }
             }
         }
     }

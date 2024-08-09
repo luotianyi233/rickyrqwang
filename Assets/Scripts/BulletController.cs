@@ -60,7 +60,7 @@ public class BulletController : MonoBehaviour
             target.GetComponent<PlayerController>().enabled = false;
             target.GetComponent<Rigidbody>().velocity = 200 * direction;
             StartCoroutine(ResetKnockBack());
-            //other.rigidbody.AddForce(100000f*direction,ForceMode.Impulse);
+            //other.rigidbody.AddForce(1000f*direction,ForceMode.Impulse);
             Instantiate(hitEffect,transform.position, Quaternion.identity);
             bulletState = BulletState.Hit;
         }
