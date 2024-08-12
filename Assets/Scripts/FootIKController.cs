@@ -8,6 +8,8 @@ public class FootIKController : MonoBehaviour
     private Vector3 rFootPos, lFootPos;
     private Quaternion rFootRot, lFootRot;
 
+    private bool leftFootGrounded,rightFootGrounded;
+
     [SerializeField]
     private LayerMask IKLayer;
 
@@ -30,8 +32,7 @@ public class FootIKController : MonoBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        rFootIK = animator.GetIKPosition(AvatarIKGoal.RightFoot);
-        lFootIK = animator.GetIKPosition(AvatarIKGoal.LeftFoot);
+        IKEnabled = false;
     }
 
     private void FixedUpdate()
@@ -45,7 +46,15 @@ public class FootIKController : MonoBehaviour
         rFootIK = animator.GetIKPosition(AvatarIKGoal.RightFoot);
 
         if (!IKEnabled)
+        {
+            //设置IK权重
+            animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, animator.GetFloat("leftIK"));
+            animator.SetIKRotationWeight(AvatarIKGoal.LeftFoot, animator.GetFloat("leftIK"));
+
+            animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, animator.GetFloat("rightIK"));
+            animator.SetIKRotationWeight(AvatarIKGoal.RightFoot, animator.GetFloat("rightIK"));
             return;
+        }
         
         //设置IK权重
         animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, animator.GetFloat("leftIK"));
@@ -67,19 +76,27 @@ public class FootIKController : MonoBehaviour
         Debug.DrawLine(lFootIK + (Vector3.up * 0.5f), lFootIK + Vector3.down * raycastDist, Color.blue, Time.deltaTime);
         Debug.DrawLine(rFootIK + (Vector3.up * 0.5f), rFootIK + Vector3.down * raycastDist, Color.blue, Time.deltaTime);
 
-        if (Physics.Raycast(lFootIK + (Vector3.up * 0.5f), Vector3.down, out RaycastHit lhit, raycastDist + 5f, IKLayer))
+        if (Physics.Raycast(lFootIK + (Vector3.up * 0.5f), Vector3.down, out RaycastHit lhit, raycastDist + 1f, IKLayer))
         {
+            leftFootGrounded = true;
             Debug.DrawRay(lhit.point, lhit.normal, Color.red, Time.deltaTime);
             lFootPos = lhit.point + Vector3.up * raycastOffset; //需要offset是因为要让脚的位置进行一定的抬升，以防止穿模
             lFootRot = Quaternion.FromToRotation(Vector3.up, lhit.normal) * transform.rotation; //  脚步的旋转值与射线检测返回的法线信息有关
         }
+        else
+            leftFootGrounded = false;
 
-        if(Physics.Raycast(rFootIK + (Vector3.up * 0.5f), Vector3.down, out RaycastHit rhit, raycastDist + 5f, IKLayer))
+        if (Physics.Raycast(rFootIK + (Vector3.up * 0.5f), Vector3.down, out RaycastHit rhit, raycastDist + 1f, IKLayer))
         {
+            rightFootGrounded = true;
             Debug.DrawRay(rhit.point, rhit.normal, Color.red, Time.deltaTime);
             rFootPos = rhit.point + Vector3.up * raycastOffset;
             rFootRot = Quaternion.FromToRotation(Vector3.up, rhit.normal) * transform.rotation;
         }
+        else
+            rightFootGrounded = false;
+
+        IKEnabled = leftFootGrounded && rightFootGrounded;
     }
 
     private void OnDrawGizmos()
