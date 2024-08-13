@@ -8,7 +8,7 @@ public class PressurePlateController : Switchable
     private Animator animator;
 
     [SerializeField]
-    private Switchable switchableObject;
+    private SwitchesController switchableObject;
 
     private int count;//触发踏板的GameObject数量
 
@@ -21,13 +21,24 @@ public class PressurePlateController : Switchable
     [SerializeField]
     private DoorClass doorClass;
 
+    private void Start()
+    {
+        RespawnController.Instance.RegisterRespawnable(this);
+    }
+
+    private void OnDestroy()
+    {
+        RespawnController.Instance.UnregisterRespawnable(this);
+    }
+
     private void OnCollisionEnter(Collision other)
     {
         if(other.collider.tag=="Player"||other.collider.tag=="Moveable")
         {
-            count++;
+            if(doorClass==DoorClass.REPEAT) 
+                count++;
             Debug.Log("进入！目前数量"+count);
-            if(count==1)
+            if(count==1||doorClass == DoorClass.ONETIME)
                 Open();
         }
     }

@@ -32,4 +32,5 @@ public class SwitchesController : Switchable
             switchesArray[i].Close();
         }
     }
+
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Switchable : MonoBehaviour,ISwitchable
+public abstract class Switchable : MonoBehaviour,ISwitchable,IRespawnable
 {
     [SerializeField] protected SwitchState state = SwitchState.CLOSED;
 
@@ -19,6 +19,12 @@ public abstract class Switchable : MonoBehaviour,ISwitchable
                 Close();
                 break;
         }
+    }
+
+    public void Respawn()
+    {
+        Close();
+        state = SwitchState.CLOSED;
     }
     public abstract void Close();
     public abstract void Open();

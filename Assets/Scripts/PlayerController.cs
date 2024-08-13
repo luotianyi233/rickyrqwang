@@ -3,13 +3,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : MonoBehaviour,IRespawnable
 {    
     public Camera Camera1;
     public Camera Camera2;
     private Animator animator;
     private Rigidbody rb;
     private CapsuleCollider playerCollider;
+
+    private GameObject[] ropes;
+    private GameObject ropeParent;
 
     //相机旋转设置
     private Quaternion freeRot; //自由旋转
@@ -39,7 +42,7 @@ public class PlayerController : MonoBehaviour
     private bool isLeftHold; //是否正在用左手抓持物体
     private float moveSpeed;    //移动速度
     private float jumpForce;    //跳跃力
-    private bool readyToJump;   //冷却完成标志（已废弃）
+    private bool isHolding;   //正在握持
     private float jumpCD;   //跳跃冷却（已废弃）
     public PhysicMaterial noFriction;
     public PhysicMaterial defaultFriction;
@@ -49,6 +52,11 @@ public class PlayerController : MonoBehaviour
     private float groundCheckOffset = 0.5f;  //地面检测偏移量
     private int ropeLayerMask;
     private int playerLayerMask;
+
+    private Vector3 respawnPosition;
+    private Quaternion respawnRotation;
+    private List<Vector3> respawnRopePos = new List<Vector3>();
+    private List<Quaternion> respawnRopeRot = new List<Quaternion>();
 
     void Start()
     {
@@ -66,8 +74,22 @@ public class PlayerController : MonoBehaviour
         isRun = false;
         moveSpeed = 0f;
         jumpForce = 700f;
-        readyToJump = true;
+        isHolding = false;
         jumpCD = 1f;
+
+        //获取绳子
+        ropes = GameObject.FindGameObjectsWithTag("Rope");
+        ropeParent = ropes[0].transform.parent.gameObject;
+
+        respawnPosition = transform.position;
+        respawnRotation = transform.rotation;
+        foreach (GameObject rope in ropes)
+        {
+            respawnRopePos.Add(rope.transform.position);
+            respawnRopeRot.Add(rope.transform.rotation);
+        }
+
+        RespawnController.Instance.RegisterRespawnable(this);
     }
 
     void FixedUpdate()
@@ -91,6 +113,12 @@ public class PlayerController : MonoBehaviour
             isGround = true;
             animator.SetBool("isGround", true);
             playerCollider.material=defaultFriction;
+
+            foreach (GameObject rope in ropes)
+            {
+                rope.GetComponent<CapsuleCollider>().material = defaultFriction;
+            }
+
             Debug.DrawLine(castOrigin,castOrigin+Vector3.down*hit.distance,Color.red);
         }
         else
@@ -99,6 +127,12 @@ public class PlayerController : MonoBehaviour
             animator.SetBool("isGround", false);
             isFall = true;
             playerCollider.material = noFriction;
+
+            foreach (GameObject rope in ropes)
+            {
+                rope.GetComponent<CapsuleCollider>().material = noFriction;
+            }
+
             Debug.DrawLine(castOrigin,castOrigin+Vector3.down*castDistance,Color.green);
 
         }
@@ -134,6 +168,7 @@ public class PlayerController : MonoBehaviour
                 Destroy(joint);
                 moveableObject.GetComponent<Collider>().isTrigger = false;
                 moveableObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.None;
+                isHolding = false;
             }
         }
 
@@ -145,7 +180,7 @@ public class PlayerController : MonoBehaviour
 
     private void HoldMoveableObject(bool isHoldButtonPressed,bool isLeft)
     {
-        if (isHoldButtonPressed)
+        if (isHoldButtonPressed && !isHolding)
         {
             GameObject moveableObject = isLeft ? MovebaleObject(playerTransform, -playerTransform.right) : MovebaleObject(playerTransform, playerTransform.right);
             if (moveableObject != null)
@@ -172,7 +207,7 @@ public class PlayerController : MonoBehaviour
                     joint.anchor = new Vector3(0, -0.5f, 0);
                     joint.connectedAnchor = Vector3.zero;
 
-
+                    isHolding = true;
             }
                 
 
@@ -281,7 +316,7 @@ public class PlayerController : MonoBehaviour
         if (isJumping && isGround)   
         {
             //StartCoroutine(Jump());
-            rb.velocity = new Vector3( 1.5f * rb.velocity.x, 0, 1.5f * rb.velocity.z); // FIXME:xz轴加速有时候无效
+            rb.velocity = new Vector3( 1.5f * rb.velocity.x, 0, 1.5f * rb.velocity.z);
             rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
             playerCollider.material = noFriction;
         }
@@ -316,5 +351,23 @@ public class PlayerController : MonoBehaviour
             //更新人物方向
             tarDir = horizontal * right + vertical * forward;
         }
+    }
+
+    public void Respawn()
+    {
+        rb.velocity = Vector3.zero;
+        rb.transform.position = respawnPosition;
+        rb.transform.rotation = respawnRotation;
+
+        for(int i =0;i<ropes.Length;i++)
+        {
+                ropes[i].transform.position = respawnRopePos[i];
+                ropes[i].transform.rotation = respawnRopeRot[i];
+        }
+    }
+
+    private void OnDestroy()
+    {
+        RespawnController.Instance.UnregisterRespawnable(this);
     }
 }
