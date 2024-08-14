@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 8856280661336531713}
   - component: {fileID: 1420693059512871099}
-  m_Layer: 0
-  m_Name: BreakableWall
+  m_Layer: 2
+  m_Name: breakableWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -74,7 +74,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2556301691551393583, guid: fc456e6c6535e45439530560738b2b33, type: 3}
       propertyPath: m_Layer
-      value: 0
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 2556301691551393583, guid: fc456e6c6535e45439530560738b2b33, type: 3}
       propertyPath: m_TagString

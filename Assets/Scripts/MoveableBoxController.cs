@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MoveableBoxController : MonoBehaviour,IRespawnable
+public class MoveableBoxController : MonoBehaviour , IRespawnable
 {
     private Vector3 respawnPos;
     private Quaternion respawnRot;

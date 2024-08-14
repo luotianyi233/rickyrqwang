@@ -1,11 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class SwitchesController : Switchable
 {
     [SerializeField] private Switchable[] switchesArray;
+
+    public int unlockCount;
+    private int unlockSwitch;
+
+    private bool openLocked;
+
+    private void Start()
+    {
+        openLocked = false;
+        unlockSwitch = 0;
+        RespawnController.Instance.RegisterRespawnable(this);
+    }
+
+    private void Update()
+    {
+        Debug.Log(unlockSwitch);
+    }
 
     public override void Open()
     {
@@ -18,11 +36,22 @@ public class SwitchesController : Switchable
         {
             switchesArray[i].Open();
         }
+
+        if(unlockCount>1)   //场景中多个复用机关控制的机关在开启后会锁定开启状态/单个复用机关不锁定
+            openLocked = true;
+    }
+
+    public override void Respawn()
+    {
+        openLocked = false;
+        unlockSwitch = 0;
+        Close();
+        state = SwitchState.CLOSED;
     }
 
     public override void Close()
     {
-        if (state == SwitchState.CLOSED) 
+        if (state == SwitchState.CLOSED || openLocked) 
             return;
 
         state = SwitchState.CLOSED;
@@ -30,6 +59,24 @@ public class SwitchesController : Switchable
         for (int i = 0; i < switchesArray.Length; i++)
         {
             switchesArray[i].Close();
+        }
+    }
+
+    public void Activate()
+    {
+        if (unlockSwitch < unlockCount)
+            unlockSwitch++;
+
+        if(unlockSwitch == unlockCount)
+            Open();
+    }
+
+    public void DeActivate()
+    {
+        if (unlockSwitch > 0 && unlockSwitch < unlockCount)
+        {
+            unlockSwitch--;
+            Close();
         }
     }
 

@@ -1,16 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PressurePlateController : Switchable
 {
     [SerializeField]
     private Animator animator;
 
-    [SerializeField]
-    private SwitchesController switchableObject;
+    public SwitchesController switchableObject;
 
     private int count;//触发踏板的GameObject数量
+
+    public UnityEvent onPlatePressed;
+    public UnityEvent onPlateReleased;
 
     private enum DoorClass
     {
@@ -59,8 +62,11 @@ public class PressurePlateController : Switchable
         if (state == SwitchState.OPEN)
             return;
         state = SwitchState.OPEN;
-        animator.SetBool("Down", true);
-        switchableObject.Open();
+        if(animator!=null)
+            animator.SetBool("Down", true);
+        if(doorClass==DoorClass.ONETIME||switchableObject.unlockCount <= 1)
+            switchableObject.Open();
+        onPlatePressed?.Invoke();
     }
 
     public override void Close()    //踏板升起
@@ -68,7 +74,9 @@ public class PressurePlateController : Switchable
         if (state == SwitchState.CLOSED)
             return;
         state = SwitchState.CLOSED;
-        animator.SetBool("Down", false);
+        if (animator != null)
+            animator.SetBool("Down", false);
         switchableObject.Close();
+        onPlateReleased?.Invoke();
     }
 }

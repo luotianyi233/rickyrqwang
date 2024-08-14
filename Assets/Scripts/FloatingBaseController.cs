@@ -33,12 +33,7 @@ public class FloatingBaseController : Switchable
     {
         startPoint = transform.position;
         targetPosition = startPoint + new Vector3(moveDistanceX, moveDistanceY, moveDistanceZ);
-        //RespawnController.Instance.RegisterRespawnable(this);
-    }
-
-    private void OnDestroy()
-    {
-        //RespawnController.Instance.UnregisterRespawnable(this);
+        RespawnController.Instance.RegisterRespawnable(this);
     }
 
     public override void Open()
@@ -70,6 +65,13 @@ public class FloatingBaseController : Switchable
         }
         // 启动新的移动协程，返回起点位置
          moveCoroutine = StartCoroutine(Move(startPoint));
+    }
+
+    public override void Respawn()
+    {
+        if (state == SwitchState.CLOSED) return;
+        Close();
+        state = SwitchState.CLOSED;
     }
 
     private IEnumerator Move(Vector3 destination)

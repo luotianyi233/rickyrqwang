@@ -12,6 +12,6 @@ public class CameraSetup : MonoBehaviour
     {
         freeLookCam = GetComponent<CinemachineFreeLook>();
         freeLookCam.m_YAxis.Value = 0.45f;
-        freeLookCam.m_XAxis.Value = -35f;
+        freeLookCam.m_XAxis.Value = 0f;
     }
 }

@@ -35,6 +35,8 @@ public class PlayerController : MonoBehaviour,IRespawnable
     private bool isRun;     //是否奔跑
     private bool isJumping;     //是否在跳跃
     private bool isGround;    //是否在地上
+    public static bool no1PlayerGround = true;   //no1玩家落地
+    public static bool no2PlayerGround = true;   //no1玩家落地
     private bool isFall; //是否落地（已废弃）
     private bool isRightHoldButtonPressed;   //是否按下右手抓取按键
     private bool isLeftHoldButtonPressed;   //是否按下左手抓取按键
@@ -51,7 +53,7 @@ public class PlayerController : MonoBehaviour,IRespawnable
     private float vertical;     //垂直方向
     private float groundCheckOffset = 0.5f;  //地面检测偏移量
     private int ropeLayerMask;
-    private int playerLayerMask;
+    private int playerLayerMask;    //暂未使用
 
     private Vector3 respawnPosition;
     private Quaternion respawnRotation;
@@ -111,13 +113,16 @@ public class PlayerController : MonoBehaviour,IRespawnable
         {
             isFall = false;
             isGround = true;
+          
             animator.SetBool("isGround", true);
-            playerCollider.material=defaultFriction;
 
+            ChangeMaterial(isGround);
+            /*
+            playerCollider.material=defaultFriction;
             foreach (GameObject rope in ropes)
             {
                 rope.GetComponent<CapsuleCollider>().material = defaultFriction;
-            }
+            }*/
 
             Debug.DrawLine(castOrigin,castOrigin+Vector3.down*hit.distance,Color.red);
         }
@@ -126,16 +131,40 @@ public class PlayerController : MonoBehaviour,IRespawnable
             isGround = false;
             animator.SetBool("isGround", false);
             isFall = true;
+            ChangeMaterial(isGround);
+            /*
             playerCollider.material = noFriction;
-
             foreach (GameObject rope in ropes)
             {
                 rope.GetComponent<CapsuleCollider>().material = noFriction;
-            }
+            }*/
 
             Debug.DrawLine(castOrigin,castOrigin+Vector3.down*castDistance,Color.green);
 
         }
+    }
+
+    private void ChangeMaterial(bool onGround)
+    {
+        switch(playerNO)
+        {
+            case 1:
+                no1PlayerGround = onGround;
+                break;
+            case 2:
+                no2PlayerGround = onGround;
+                break;
+        }
+
+        onGround = no1PlayerGround&&no2PlayerGround;
+
+        playerCollider.material = onGround?defaultFriction:noFriction;
+
+        foreach (GameObject rope in ropes)
+        {
+            rope.GetComponent<CapsuleCollider>().material = onGround ? defaultFriction : noFriction;
+        }
+
     }
 
     private void ActionDetection()
@@ -145,6 +174,7 @@ public class PlayerController : MonoBehaviour,IRespawnable
 
         isJumping = ((Input.GetButton("Player" + playerNO + "Jump") || Input.GetButton("Player" + playerNO + "Jump"))) && isGround  && !isRightHold && !isLeftHold && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")&& !animator.GetCurrentAnimatorStateInfo(0).IsName("Float");
         animator.SetBool("isJumping", isJumping);
+
 
         isRightHoldButtonPressed = ((Input.GetButton("Player" + playerNO + "RightHold") || Input.GetButton("Player" + playerNO + "RightHold"))) && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump") && !isLeftHoldButtonPressed;
         isLeftHoldButtonPressed = ((Input.GetButton("Player" + playerNO + "LeftHold") || Input.GetButton("Player" + playerNO + "LeftHold"))) && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump") && !isRightHoldButtonPressed;

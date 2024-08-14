@@ -21,8 +21,9 @@ public abstract class Switchable : MonoBehaviour,ISwitchable,IRespawnable
         }
     }
 
-    public void Respawn()
+    public virtual void Respawn()
     {
+        if (state == SwitchState.CLOSED) return;
         Close();
         state = SwitchState.CLOSED;
     }
