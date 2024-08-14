@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Materials/Black.mat.meta
 guid: b7f75be9c982f0749ba9164d46904ccd
+========
+guid: 18fca05054d782441ad97d1f59a3c498
+>>>>>>>> af642bdfc97f30d7cdd43b96a5542d0b5fdb94bf:Assets/Materials/Glass.mat.meta
 NativeFormatImporter:
   externalObjects: {}
   mainObjectFileID: 2100000

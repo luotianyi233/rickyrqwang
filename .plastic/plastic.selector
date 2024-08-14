@@ -1,4 +1,4 @@
 repository "chained fall flat@wechat_os_Qy085yw95BUW44vCIZYAEvUt0@cloud"
   path "/"
-    br "/main"
-    co "/main"
+    smartbranch "/main" changeset "16" 
+     

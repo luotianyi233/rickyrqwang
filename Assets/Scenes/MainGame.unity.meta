@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scenes/MainGame.unity.meta
 guid: a369a639637cfbf4a8003bb7dda6990c
+========
+guid: 8f446cf3c16f12e46bbdf20144ee5382
+>>>>>>>> af642bdfc97f30d7cdd43b96a5542d0b5fdb94bf:Assets/Tools/NvBlast/Plugins/x64/NvBlastExtAuthoring_x64.dll.meta.private.0.meta
 DefaultImporter:
   externalObjects: {}
   userData: 

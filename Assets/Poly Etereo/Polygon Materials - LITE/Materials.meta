@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Poly Etereo/Polygon Materials - LITE/Materials.meta
 guid: 84bbe480e49cfbd4bbdafe54ad0ef2ec
+========
+guid: f858de9dfcea7c94182f27ffe2dac9a6
+>>>>>>>> af642bdfc97f30d7cdd43b96a5542d0b5fdb94bf:Assets/Tools/NvBlast/Plugins/x64.meta.private.0
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}
