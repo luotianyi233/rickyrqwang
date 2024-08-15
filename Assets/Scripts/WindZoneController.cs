@@ -53,7 +53,7 @@ public class WindZoneController : Switchable
                     rb.gameObject.GetComponent<Animator>().SetTrigger("enterWind");
                 }
 
-                float heightDif = floatHeight - other.transform.position.y;
+                float heightDif = floatHeight - other.transform.position.y + gameObject.transform.position.y;
                 if (heightDif > 0)
                 {   
                     rb.AddForce(Vector3.up * floatPower * heightDif, ForceMode.Acceleration);   //风场的持续上升推力

@@ -346,7 +346,7 @@ public class PlayerController : MonoBehaviour,IRespawnable
         if (isJumping && isGround)   
         {
             //StartCoroutine(Jump());
-            rb.velocity = new Vector3( 1.5f * rb.velocity.x, 0, 1.5f * rb.velocity.z);
+            rb.velocity = new Vector3( 2.5f * rb.velocity.x, 0, 2.5f * rb.velocity.z);
             rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
             playerCollider.material = noFriction;
         }

@@ -33,6 +33,7 @@ public class PlayerInfoController : MonoBehaviour
                             playerInfoBar = Instantiate(playerInfoPrefab, canvas.transform).transform;
                             info = playerInfoBar.GetChild(0).GetComponent<Text>();
                             info.text = "Joystick";
+                            info.color = Color.white;
                         }
                         break;
                     case 2:
@@ -41,6 +42,7 @@ public class PlayerInfoController : MonoBehaviour
                             playerInfoBar = Instantiate(playerInfoPrefab, canvas.transform).transform;
                             info = playerInfoBar.GetChild(0).GetComponent<Text>();
                             info.text = "Keyboard";
+                            info.color = Color.white;
                         }
                         break;
                 }
