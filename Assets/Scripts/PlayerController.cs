@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour,IRespawnable
+public class PlayerController : MonoBehaviour//,IRespawnable
 {    
     public Camera Camera1;
     public Camera Camera2;
@@ -36,7 +36,9 @@ public class PlayerController : MonoBehaviour,IRespawnable
     private bool isJumping;     //是否在跳跃
     private bool isGround;    //是否在地上
     public static bool no1PlayerGround = true;   //no1玩家落地
-    public static bool no2PlayerGround = true;   //no1玩家落地
+    public static bool no2PlayerGround = true;   //no2玩家落地
+    public static bool no1PlayerMoving = false;   //no1玩家移动
+    public static bool no2PlayerMoving = false;   //no2玩家移动
     private bool isFall; //是否落地（已废弃）
     private bool isRightHoldButtonPressed;   //是否按下右手抓取按键
     private bool isLeftHoldButtonPressed;   //是否按下左手抓取按键
@@ -53,11 +55,11 @@ public class PlayerController : MonoBehaviour,IRespawnable
     private float vertical;     //垂直方向
     private float groundCheckOffset = 0.5f;  //地面检测偏移量
     private int ropeLayerMask;
-    private int playerLayerMask;    //暂未使用
+    private int wallLayerMask;
 
-    private Vector3 respawnPosition;
+    public Vector3 respawnPosition;
     private Quaternion respawnRotation;
-    private List<Vector3> respawnRopePos = new List<Vector3>();
+    public List<Vector3> respawnRopePos = new List<Vector3>();
     private List<Quaternion> respawnRopeRot = new List<Quaternion>();
 
     void Start()
@@ -66,7 +68,9 @@ public class PlayerController : MonoBehaviour,IRespawnable
         animator = GetComponent<Animator>();
         moveableLayer = LayerMask.GetMask("Moveable"); 
         ropeLayerMask = LayerMask.GetMask("Rope");  // 忽略绳子层的碰撞检测
-        ropeLayerMask = ~ropeLayerMask;
+        wallLayerMask = LayerMask.GetMask("Wall");  // 忽略墙层的碰撞检测
+        //ropeLayerMask = ~ropeLayerMask;
+        //wallLayerMask = ~wallLayerMask;
 
         //人物属性初始化
         playerCollider= GetComponent<CapsuleCollider>();
@@ -91,7 +95,7 @@ public class PlayerController : MonoBehaviour,IRespawnable
             respawnRopeRot.Add(rope.transform.rotation);
         }
 
-        RespawnController.Instance.RegisterRespawnable(this);
+        //RespawnController.Instance.RegisterRespawnable(this);
     }
 
     void FixedUpdate()
@@ -109,7 +113,7 @@ public class PlayerController : MonoBehaviour,IRespawnable
 
         Vector3 castOrigin = playerTransform.position+Vector3.up*(halfHeight-radius+groundCheckOffset);
         float castDistance = groundCheckOffset + 2 * radius;
-        if(Physics.SphereCast(castOrigin, radius, Vector3.down, out RaycastHit hit, castDistance,ropeLayerMask))
+        if(Physics.SphereCast(castOrigin, radius, Vector3.down, out RaycastHit hit, castDistance,~(ropeLayerMask|wallLayerMask)))
         {
             isFall = false;
             isGround = true;
@@ -144,25 +148,29 @@ public class PlayerController : MonoBehaviour,IRespawnable
         }
     }
 
-    private void ChangeMaterial(bool onGround)
+    private void ChangeMaterial(bool onAllChange)
     {
         switch(playerNO)
         {
             case 1:
-                no1PlayerGround = onGround;
+                no1PlayerGround = onAllChange;
+                no1PlayerMoving = (horizontal != 0 || vertical != 0) && tarDir.magnitude > 0.1f;
                 break;
             case 2:
-                no2PlayerGround = onGround;
+                no2PlayerGround = onAllChange;
+                no2PlayerMoving = (horizontal != 0 || vertical != 0) && tarDir.magnitude > 0.1f;
                 break;
         }
 
-        onGround = no1PlayerGround&&no2PlayerGround;
 
-        playerCollider.material = onGround?defaultFriction:noFriction;
+        onAllChange = no1PlayerGround&&no2PlayerGround;
+        bool onRopeChange = no1PlayerGround && no2PlayerGround && !no1PlayerMoving && !no2PlayerMoving;
+
+        playerCollider.material = onAllChange?defaultFriction:noFriction;
 
         foreach (GameObject rope in ropes)
         {
-            rope.GetComponent<CapsuleCollider>().material = onGround ? defaultFriction : noFriction;
+            rope.GetComponent<CapsuleCollider>().material = onRopeChange ? defaultFriction : noFriction;
         }
 
     }
@@ -346,7 +354,7 @@ public class PlayerController : MonoBehaviour,IRespawnable
         if (isJumping && isGround)   
         {
             //StartCoroutine(Jump());
-            rb.velocity = new Vector3( 2.5f * rb.velocity.x, 0, 2.5f * rb.velocity.z);
+            rb.velocity = new Vector3( 2f * rb.velocity.x, 0, 2f * rb.velocity.z);
             rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
             playerCollider.material = noFriction;
         }
@@ -385,6 +393,7 @@ public class PlayerController : MonoBehaviour,IRespawnable
 
     public void Respawn()
     {
+        /*
         rb.velocity = Vector3.zero;
         rb.transform.position = respawnPosition;
         rb.transform.rotation = respawnRotation;
@@ -393,11 +402,11 @@ public class PlayerController : MonoBehaviour,IRespawnable
         {
                 ropes[i].transform.position = respawnRopePos[i];
                 ropes[i].transform.rotation = respawnRopeRot[i];
-        }
+        }*/
     }
 
     private void OnDestroy()
     {
-        RespawnController.Instance.UnregisterRespawnable(this);
+        //RespawnController.Instance.UnregisterRespawnable(this);
     }
 }
