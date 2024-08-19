@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8856280661336531713}
   - component: {fileID: 1420693059512871099}
   m_Layer: 2
-  m_Name: breakableWall
+  m_Name: BreakableWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -50,7 +50,7 @@ MonoBehaviour:
   outsideMaterial: {fileID: 2100000, guid: 18fca05054d782441ad97d1f59a3c498, type: 2}
   wallDensity: 1000
   internalStrength: 5000
-  jointBreakForce: 50000
+  jointBreakForce: 20000
   totalPieces: 100
 --- !u!1001 &2364867473394231580
 PrefabInstance:

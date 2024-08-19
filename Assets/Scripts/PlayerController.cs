@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour//,IRespawnable
+public class PlayerController : MonoBehaviour,IRespawnable
 {    
     public Camera Camera1;
     public Camera Camera2;
@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour//,IRespawnable
     private Rigidbody rb;
     private CapsuleCollider playerCollider;
 
-    private GameObject[] ropes;
+    public GameObject[] ropes;
     private GameObject ropeParent;
 
     //相机旋转设置
@@ -32,14 +32,14 @@ public class PlayerController : MonoBehaviour//,IRespawnable
     public int playerNO;
     private float turnSpeed;  //人物转身速度
     private Vector3 tarDir;  //人物朝向
+    private bool isFall;
     private bool isRun;     //是否奔跑
     private bool isJumping;     //是否在跳跃
     private bool isGround;    //是否在地上
     public static bool no1PlayerGround = true;   //no1玩家落地
     public static bool no2PlayerGround = true;   //no2玩家落地
     public static bool no1PlayerMoving = false;   //no1玩家移动
-    public static bool no2PlayerMoving = false;   //no2玩家移动
-    private bool isFall; //是否落地（已废弃）
+    public static bool no2PlayerMoving = false;   //no2玩家移
     private bool isRightHoldButtonPressed;   //是否按下右手抓取按键
     private bool isLeftHoldButtonPressed;   //是否按下左手抓取按键
     private bool isRightHold; //是否正在用右手抓持物体
@@ -58,11 +58,11 @@ public class PlayerController : MonoBehaviour//,IRespawnable
     private int wallLayerMask;
 
     public Vector3 respawnPosition;
-    private Quaternion respawnRotation;
+    public Quaternion respawnRotation;
     public List<Vector3> respawnRopePos = new List<Vector3>();
-    private List<Quaternion> respawnRopeRot = new List<Quaternion>();
+    public List<Quaternion> respawnRopeRot = new List<Quaternion>();
 
-    void Start()
+    void Awake()
     {
         rb= GetComponent<Rigidbody>();
         animator = GetComponent<Animator>();
@@ -95,7 +95,7 @@ public class PlayerController : MonoBehaviour//,IRespawnable
             respawnRopeRot.Add(rope.transform.rotation);
         }
 
-        //RespawnController.Instance.RegisterRespawnable(this);
+        RespawnController.Instance.RegisterRespawnable(this);
     }
 
     void FixedUpdate()
@@ -103,6 +103,10 @@ public class PlayerController : MonoBehaviour//,IRespawnable
         PlayerMoving();
         PlayerJumping();
         GroundDetection();
+    }
+
+    void Update()
+    {
         ActionDetection();
     }
 
@@ -164,7 +168,8 @@ public class PlayerController : MonoBehaviour//,IRespawnable
 
 
         onAllChange = no1PlayerGround&&no2PlayerGround;
-        bool onRopeChange = no1PlayerGround && no2PlayerGround && !no1PlayerMoving && !no2PlayerMoving;
+        bool onRopeChange = onAllChange;
+        //bool onRopeChange = no1PlayerGround && no2PlayerGround && !no1PlayerMoving && !no2PlayerMoving;
 
         playerCollider.material = onAllChange?defaultFriction:noFriction;
 
@@ -180,9 +185,8 @@ public class PlayerController : MonoBehaviour//,IRespawnable
         isRun = ((Input.GetButton("Player" + playerNO + "Run") || Input.GetButton("Player" + playerNO + "Run")) && (horizontal != 0 || vertical != 0) && isGround);
         animator.SetBool("isRunning", isRun);
 
-        isJumping = ((Input.GetButton("Player" + playerNO + "Jump") || Input.GetButton("Player" + playerNO + "Jump"))) && isGround  && !isRightHold && !isLeftHold && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")&& !animator.GetCurrentAnimatorStateInfo(0).IsName("Float");
+        isJumping = (Input.GetButton("Player" + playerNO + "Jump") || Input.GetButton("Player" + playerNO + "Jump")) && isGround  && !isRightHold && !isLeftHold && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump")&& !animator.GetCurrentAnimatorStateInfo(0).IsName("Float");
         animator.SetBool("isJumping", isJumping);
-
 
         isRightHoldButtonPressed = ((Input.GetButton("Player" + playerNO + "RightHold") || Input.GetButton("Player" + playerNO + "RightHold"))) && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump") && !isLeftHoldButtonPressed;
         isLeftHoldButtonPressed = ((Input.GetButton("Player" + playerNO + "LeftHold") || Input.GetButton("Player" + playerNO + "LeftHold"))) && !animator.GetCurrentAnimatorStateInfo(0).IsName("Jump") && !isRightHoldButtonPressed;
@@ -354,7 +358,7 @@ public class PlayerController : MonoBehaviour//,IRespawnable
         if (isJumping && isGround)   
         {
             //StartCoroutine(Jump());
-            rb.velocity = new Vector3( 2f * rb.velocity.x, 0, 2f * rb.velocity.z);
+            rb.velocity = new Vector3( 1.5f * rb.velocity.x, 0, 1.5f * rb.velocity.z);
             rb.AddForce(jumpForce * Vector3.up, ForceMode.Impulse);
             playerCollider.material = noFriction;
         }
@@ -393,7 +397,7 @@ public class PlayerController : MonoBehaviour//,IRespawnable
 
     public void Respawn()
     {
-        /*
+        
         rb.velocity = Vector3.zero;
         rb.transform.position = respawnPosition;
         rb.transform.rotation = respawnRotation;
@@ -402,11 +406,38 @@ public class PlayerController : MonoBehaviour//,IRespawnable
         {
                 ropes[i].transform.position = respawnRopePos[i];
                 ropes[i].transform.rotation = respawnRopeRot[i];
-        }*/
+        }
+    }
+
+    public void Save()
+    {
+        respawnPosition = transform.position;
+        respawnRotation = transform.rotation;
+
+        respawnRopePos.Clear();
+        respawnRopeRot.Clear();
+
+        foreach (GameObject rope in ropes)
+        {
+            respawnRopePos.Add(rope.transform.position);
+            respawnRopeRot.Add(rope.transform.rotation);
+        }
+    }
+
+    public void Transport(Transform destination)
+    {
+        transform.position = destination.position+new Vector3(0, 10, 0);
+        transform.rotation = destination.rotation;
+
+        foreach (GameObject rope in ropes)
+        {
+           rope.transform.position = destination.position;
+           rope.transform.rotation = destination.rotation;
+        }
     }
 
     private void OnDestroy()
     {
-        //RespawnController.Instance.UnregisterRespawnable(this);
+        RespawnController.Instance.UnregisterRespawnable(this);
     }
 }

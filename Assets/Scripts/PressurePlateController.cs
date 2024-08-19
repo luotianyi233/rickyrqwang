@@ -24,7 +24,7 @@ public class PressurePlateController : Switchable
     [SerializeField]
     private DoorClass doorClass;
 
-    private void Start()
+    private void Awake()
     {
         RespawnController.Instance.RegisterRespawnable(this);
     }

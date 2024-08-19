@@ -4,11 +4,15 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
-public class CanonController : MonoBehaviour
+public class CanonController : Switchable
 {
+    public GameObject canon;
     public GameObject bulletPrefab;
     private GameObject bullet;
+    public GameObject brokenEffect;
+    private GameObject brokenVFX;
     private Transform bossTransform;
+    public GameObject visualization;
     private Quaternion bossRot;
     private Vector3 bossPos;
     private int rotSpeed = 50;
@@ -23,16 +27,16 @@ public class CanonController : MonoBehaviour
     private float lastAtkTime;
     private bool isTargetLocked;
 
-    enum BossState
+    public enum BossState
     {
         REST,
         ACTIVE,
     };
-    BossState bossState;
+    public BossState bossState;
 
     private void Awake()
     {
-        bossTransform = this.transform;
+        bossTransform = canon.transform;
 
         //players = GameObject.FindObjectsOfType<PlayerController>();       //编辑器直接拖了，players为private这边才要初始化
 
@@ -42,11 +46,15 @@ public class CanonController : MonoBehaviour
         bossRot = bossTransform.rotation;
     }
 
-    // Update is called once per frame
     void Update()
     {
+        if (brokenVFX != null)
+        {
+            brokenVFX.transform.position = launchPos.position;
+            brokenVFX.transform.rotation = launchPos.rotation;
+        }
         SwitchStates();
-        if(FindPlayer())
+        if(FindPlayer()&&bossState == BossState.ACTIVE)
             lastAtkTime -= Time.deltaTime;
     }
 
@@ -69,7 +77,7 @@ public class CanonController : MonoBehaviour
 
     void SwitchStates()
     {
-        if (!FindPlayer())  //如果没有找到玩家或者TODO:炮塔已被关闭
+        if (!FindPlayer() || state==SwitchState.CLOSED)  //如果没有找到玩家或者炮塔已被关闭
         {
             bossState = BossState.REST;
             isTargetLocked = false;
@@ -84,9 +92,13 @@ public class CanonController : MonoBehaviour
         switch(bossState)
         {
             case BossState.REST:
-                //TODO:shutdown逻辑
+                visualization.SetActive(false);
+                Broken();
                 break;
             case BossState.ACTIVE:
+                visualization.SetActive(true);
+                if (brokenVFX!=null)
+                    Destroy(brokenVFX);
                 RotationToPlayer();
                 if(lastAtkTime<0)
                 {
@@ -122,6 +134,8 @@ public class CanonController : MonoBehaviour
         
         //计算从炮塔到目标的方向向量
         Vector3 targetDirection = nearestTarget.transform.position - bossTransform.position;    
+        //targetDirection.y = 0;  //保持炮塔不会上下旋转
+        if (targetDirection == Vector3.zero) return;  //如果方向向量为0，不旋转
         //根据方向向量计算旋转角
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection);   
         float maxRotationSpeed = rotSpeed * Time.deltaTime;
@@ -137,5 +151,37 @@ public class CanonController : MonoBehaviour
         bullet.transform.rotation = launchPos.rotation;
         bullet.GetComponent<BulletController>().target = nearestTarget;
         bullet.GetComponent<BulletController>().MoveToTarget();
+    }
+
+    public override void Open()
+    {
+        if (state == SwitchState.OPEN)
+            return;
+        state = SwitchState.OPEN;
+
+    }
+
+    public override void Close()
+    {
+        if (state == SwitchState.CLOSED)
+            return;
+        state = SwitchState.CLOSED;
+
+    }
+
+    public override void Respawn()
+    {
+        if(brokenVFX!=null)
+            Destroy(brokenVFX);
+        if (state == SwitchState.CLOSED) return;
+        Close();
+        state = SwitchState.CLOSED;
+    }
+
+    void Broken()
+    {
+        //炮管冒烟特效
+        if(brokenVFX==null)
+            brokenVFX=Instantiate(brokenEffect, launchPos.position, Quaternion.identity);
     }
 }

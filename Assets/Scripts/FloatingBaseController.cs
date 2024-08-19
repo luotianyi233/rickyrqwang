@@ -13,7 +13,7 @@ public class FloatingBaseController : Switchable
     private Coroutine moveCoroutine; // 用于存储当前的移动协程
 
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerStay(Collider other)
     {
         if (other.gameObject.CompareTag("Player")|| other.gameObject.CompareTag("Moveable"))
         {
@@ -29,7 +29,7 @@ public class FloatingBaseController : Switchable
         }
     }
 
-    private void Start()
+    private void Awake()
     {
         startPoint = transform.position;
         targetPosition = startPoint + new Vector3(moveDistanceX, moveDistanceY, moveDistanceZ);

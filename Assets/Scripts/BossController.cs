@@ -4,15 +4,17 @@ using UnityEngine;
 
 public class BossController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public CanonController[] canons;
 
     // Update is called once per frame
-    void Update()
+    void OnTriggerEnter(Collider other)
     {
-        
+        if (other.tag == "Player")
+        {
+            foreach (CanonController canon in canons)
+            {
+                canon.Close();
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ public class RespawnController: MonoBehaviour
     [SerializeField]
     public List<IRespawnable> respawnables = new List<IRespawnable>();
 
-    private void Awake()
+    private void Awake()    //µ¥Àý
     {
         if (Instance == null)
         {

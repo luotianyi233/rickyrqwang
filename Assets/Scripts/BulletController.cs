@@ -46,15 +46,15 @@ public class BulletController : MonoBehaviour
         {            
             isLaunched = true;
             direction = (target.transform.position - transform.position + new Vector3(0,1.3f,0)).normalized;
-            rb.velocity = direction * 45;
+            rb.velocity = direction * 50;
         }
     }
 
     private void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.CompareTag("Wall") && bulletState != BulletState.Hit)
+        if (other.gameObject.CompareTag("BreakableWall") && bulletState != BulletState.Hit)
         {
-            rb.mass = 50;
+            rb.mass = 100;
             GameObject bombVFX = Instantiate(hitEffect, transform.position, Quaternion.identity);
             Destroy(bombVFX, 1.5f);
             bulletState = BulletState.Hit;
@@ -80,6 +80,12 @@ public class BulletController : MonoBehaviour
             Destroy(bombVFX, 1.5f);
             Destroy(gameObject);
             bulletState = BulletState.Hit;
+        }
+        else if(other.gameObject.CompareTag("Rope") && bulletState != BulletState.Hit)
+        {
+            //ÅÚµ¯·´µ¯
+            direction=-direction;
+            rb.velocity = direction * 50;
         }
     }
 

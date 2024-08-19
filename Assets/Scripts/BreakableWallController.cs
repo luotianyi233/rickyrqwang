@@ -5,7 +5,7 @@ using System.Linq;
 using UnityEngine;
 using Random = System.Random;
 
-public class BreakableWallController : MonoBehaviour
+public class BreakableWallController : MonoBehaviour,IRespawnable
 {
 
     [SerializeField] private GameObject cubeMeshObj;
@@ -20,12 +20,42 @@ public class BreakableWallController : MonoBehaviour
 
     private Node[] nodes;
 
-    public void Start()
+    static List<GameObject> targets=new List<GameObject>();
+    GameObject origin;
+
+    public void Awake()
     {
         PreBake();
         //transform.GetChild(0).gameObject.SetActive(false);
+        origin = gameObject.transform.GetChild(0).gameObject;
+
+        RespawnController.Instance.RegisterRespawnable(this);
     }
 
+    public void OnDestroy()
+    {
+        RespawnController.Instance.UnregisterRespawnable(this);
+    }
+
+    public void Respawn()
+    {
+        if (targets != null)
+        {
+            foreach (GameObject target in targets)  //遍历所有Piece的父物体Pieces，若已激活（说明被炮弹击中），则删除Pieces
+            {
+                if (target!=null&&!target.activeSelf)
+                    continue;
+                Destroy(target);
+            }
+
+            if (!origin.activeSelf) //获取挂载脚本的子物体（也就是orginWall），如果为未激活状态（说明已被炮弹击中），则重新激活并进行一次PreBake生成碎片预制体
+            {
+                origin.SetActive(true);
+                PreBake();
+            }
+
+        }
+    }
     private void FixedUpdate()
     {
         //遍历所有Node，joint断裂则清理
@@ -124,6 +154,7 @@ public class BreakableWallController : MonoBehaviour
         }
 
         fractureGameObject = new GameObject("Pieces");
+        fractureGameObject.tag = "BreakableWallParent";
 
         foreach (GameObject piece in pieces)
         {
@@ -131,6 +162,9 @@ public class BreakableWallController : MonoBehaviour
         }
 
         Initial(fractureGameObject.GetComponentsInChildren<Rigidbody>());
+
+        //将这个fractureGameObject加入targets列表
+        targets.Add(fractureGameObject);
 
         fractureGameObject.SetActive(false);
     }
@@ -177,7 +211,8 @@ public class BreakableWallController : MonoBehaviour
         {
             GameObject piece = BuildPiece(insideMaterial, outsideMaterial, pieceMesh, pieceWeight);
             piece.name += $" [{i}]";
-            piece.tag = "Wall";
+            piece.tag = "BreakableWall";
+            piece.layer = LayerMask.NameToLayer("Pieces");
             return piece;
         }).ToList();
     }

@@ -13,6 +13,8 @@ TagManager:
   - BreakableWall
   - Wall
   - WallOrigin
+  - BreakableWallParent
+  - FxTemporaire
   layers:
   - Default
   - TransparentFX
@@ -32,7 +34,7 @@ TagManager:
   - IgnoreBoom
   - Door
   - Wall
-  - 
+  - Pieces
   - 
   - 
   - 

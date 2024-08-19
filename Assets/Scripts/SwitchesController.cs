@@ -13,16 +13,11 @@ public class SwitchesController : Switchable
 
     private bool openLocked;
 
-    private void Start()
+    private void Awake()
     {
         openLocked = false;
         unlockSwitch = 0;
         RespawnController.Instance.RegisterRespawnable(this);
-    }
-
-    private void Update()
-    {
-        Debug.Log(unlockSwitch);
     }
 
     public override void Open()
