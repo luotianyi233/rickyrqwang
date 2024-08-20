@@ -275,7 +275,7 @@ public class BreakableWallController : MonoBehaviour,IRespawnable
         return pieces;
     }
 
-    // 给当前chunk的周围的chunk添加<FixedJoint>组件并连接他们，设置连接断裂力
+    // 给当前piece的周围的piece添加<FixedJoint>组件并连接他们，设置连接断裂力
     //touchRadius是接触的半径
     private void ConnectTouchingPieces(GameObject piece, float jointBreakForce, float touchRadius = .01f)
     {

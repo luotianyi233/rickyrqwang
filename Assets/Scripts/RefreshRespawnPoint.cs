@@ -25,6 +25,7 @@ public class RefreshRespawnPoint : MonoBehaviour
     {
         if (!haveEntered && other.tag == "Player")
         {
+            StartCoroutine(DisplaySubtitles());
             P1.Save();
             P2.Save();
             haveEntered = true;
