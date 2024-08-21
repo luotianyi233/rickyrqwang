@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using static UnityEngine.Rendering.BoolParameter;
 
-public class RefreshRespawnPoint : MonoBehaviour
+public class RefreshRespawnPoint : MonoBehaviour    //存档重生点刷新
 {
     private BoxCollider boxCollider;
     public PlayerController P1;

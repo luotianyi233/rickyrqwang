@@ -33,6 +33,7 @@ public class Node : MonoBehaviour
             Destroy(gameObject, 3f);
     }
 
+    //节点是否孤立
     private bool isIsolated()
     {
         // 检查是否有任何有效的 Joint 连接到其他 Node
@@ -106,6 +107,7 @@ public class Node : MonoBehaviour
         HasBrokenLinks = false;
     }
 
+    //冻住碎片
     void Freeze()
     {
         frozen = true;
@@ -115,6 +117,7 @@ public class Node : MonoBehaviour
         forzenRot = rb.transform.rotation;
     }
 
+    //解冻碎片
     public void Unfreeze()
     {
         frozen = false;

@@ -16,7 +16,7 @@ public class BreakableWallController : MonoBehaviour,IRespawnable
     [SerializeField] private float jointBreakForce = 1000;
     [SerializeField] private int totalPieces = 500;
 
-    private GameObject fractureGameObject;
+    private GameObject fractureGameObject;  //
 
     private Node[] nodes;
 
@@ -25,8 +25,9 @@ public class BreakableWallController : MonoBehaviour,IRespawnable
 
     public void Awake()
     {
-        PreBake();
-        //transform.GetChild(0).gameObject.SetActive(false);
+        //预分割
+        PreBake();  
+        //获取原mesh的GameObject
         origin = gameObject.transform.GetChild(0).gameObject;
 
         RespawnController.Instance.RegisterRespawnable(this);
@@ -41,14 +42,16 @@ public class BreakableWallController : MonoBehaviour,IRespawnable
     {
         if (targets != null)
         {
-            foreach (GameObject target in targets)  //遍历所有Piece的父物体Pieces，若已激活（说明被炮弹击中），则删除Pieces
+            //遍历所有Piece的父物体Pieces，若已激活（说明被炮弹击中），则删除Pieces
+            foreach (GameObject target in targets)  
             {
                 if (target!=null&&!target.activeSelf)
                     continue;
                 Destroy(target);
             }
 
-            if (!origin.activeSelf) //获取挂载脚本的子物体（也就是orginWall），如果为未激活状态（说明已被炮弹击中），则重新激活并进行一次PreBake生成碎片预制体
+            //获取挂载脚本的子物体（也就是orginWall），如果为未激活状态（说明已被炮弹击中），则重新激活并进行一次PreBake生成碎片预制体
+            if (!origin.activeSelf) 
             {
                 origin.SetActive(true);
                 PreBake();
@@ -66,6 +69,7 @@ public class BreakableWallController : MonoBehaviour,IRespawnable
             runSearch = true;
         }
 
+        //Unfreeze节点
         if (runSearch)
             SearchGraph(nodes);
     }
@@ -144,23 +148,23 @@ public class BreakableWallController : MonoBehaviour,IRespawnable
         );
 
         List<Mesh> meshes = FractureMeshesInNvblast(totalPieces, nvMesh);
-
         float pieceWeight = Volume(cubeMesh) * wallDensity / totalPieces;
         List<GameObject> pieces = BuildPieces(insideMaterial, outsideMaterial, meshes, pieceWeight);
 
         foreach (GameObject piece in pieces)
         {
-            ConnectTouchingPieces(piece, jointBreakForce);
+            ConnectTouchingPieces(piece, jointBreakForce);  //为碎片添加关节
         }
 
-        fractureGameObject = new GameObject("Pieces");
+        //为碎片创建父物体
+        fractureGameObject = new GameObject("Pieces");  
         fractureGameObject.tag = "BreakableWallParent";
-
         foreach (GameObject piece in pieces)
         {
             piece.transform.SetParent(fractureGameObject.transform, false);
         }
 
+        //初始化每个碎片
         Initial(fractureGameObject.GetComponentsInChildren<Rigidbody>());
 
         //将这个fractureGameObject加入targets列表
@@ -250,7 +254,7 @@ public class BreakableWallController : MonoBehaviour,IRespawnable
         return pieceMesh;
     }
 
-    //构建碎片
+    //构建碎片，添加Component
     private GameObject BuildPiece(Material insideMaterial, Material outsideMaterial, Mesh mesh, float mass)
     {
         GameObject pieces = new GameObject("Piece");

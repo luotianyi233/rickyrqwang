@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HintController : MonoBehaviour
+public class HintController : MonoBehaviour     //游戏提示控制器
 {
     public Text subtitleText;
     public string[] Hints;

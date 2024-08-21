@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class SwitchesController : Switchable
+public class SwitchesController : Switchable    //控制多个Switchable实例的开关
 {
     [SerializeField] private Switchable[] switchesArray;
 

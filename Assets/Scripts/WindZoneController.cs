@@ -22,6 +22,7 @@ public class WindZoneController : Switchable
         isClose = true;
     }
 
+
     private void OnTriggerEnter(Collider other)
     {
         if((other.tag == "Player"|| other.tag == "Moveable") &&!isClose)
@@ -36,6 +37,8 @@ public class WindZoneController : Switchable
             }
         }
     }
+
+    //玩家或方块进入风场则取消重力，给予持续上升推力，并对玩家朝向附加xz向速度
     private void OnTriggerStay(Collider other)
     {
         if ((other.tag == "Player" || other.tag == "Moveable" ) &&!isClose)

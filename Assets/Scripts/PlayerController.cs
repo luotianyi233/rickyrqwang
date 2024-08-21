@@ -69,8 +69,6 @@ public class PlayerController : MonoBehaviour,IRespawnable
         moveableLayer = LayerMask.GetMask("Moveable"); 
         ropeLayerMask = LayerMask.GetMask("Rope");  // 忽略绳子层的碰撞检测
         wallLayerMask = LayerMask.GetMask("Wall");  // 忽略墙层的碰撞检测
-        //ropeLayerMask = ~ropeLayerMask;
-        //wallLayerMask = ~wallLayerMask;
 
         //人物属性初始化
         playerCollider= GetComponent<CapsuleCollider>();
@@ -100,14 +98,14 @@ public class PlayerController : MonoBehaviour,IRespawnable
 
     void FixedUpdate()
     {
-        PlayerMoving();
-        PlayerJumping();
-        GroundDetection();
+        PlayerMoving(); //玩家移动
+        PlayerJumping();    //玩家跳跃
+        GroundDetection();  //玩家地面检测
     }
 
     void Update()
     {
-        ActionDetection();
+        ActionDetection();  //检测用户输入，对应animator动画
     }
 
     private void GroundDetection()
@@ -125,14 +123,8 @@ public class PlayerController : MonoBehaviour,IRespawnable
             animator.SetBool("isGround", true);
 
             ChangeMaterial(isGround);
-            /*
-            playerCollider.material=defaultFriction;
-            foreach (GameObject rope in ropes)
-            {
-                rope.GetComponent<CapsuleCollider>().material = defaultFriction;
-            }*/
 
-            Debug.DrawLine(castOrigin,castOrigin+Vector3.down*hit.distance,Color.red);
+            //Debug.DrawLine(castOrigin,castOrigin+Vector3.down*hit.distance,Color.red);
         }
         else
         {
@@ -140,18 +132,13 @@ public class PlayerController : MonoBehaviour,IRespawnable
             animator.SetBool("isGround", false);
             isFall = true;
             ChangeMaterial(isGround);
-            /*
-            playerCollider.material = noFriction;
-            foreach (GameObject rope in ropes)
-            {
-                rope.GetComponent<CapsuleCollider>().material = noFriction;
-            }*/
 
-            Debug.DrawLine(castOrigin,castOrigin+Vector3.down*castDistance,Color.green);
+            //Debug.DrawLine(castOrigin,castOrigin+Vector3.down*castDistance,Color.green);
 
         }
     }
-
+    
+    //在跳跃时切换玩家和绳子材质
     private void ChangeMaterial(bool onAllChange)
     {
         switch(playerNO)
@@ -169,7 +156,6 @@ public class PlayerController : MonoBehaviour,IRespawnable
 
         onAllChange = no1PlayerGround&&no2PlayerGround;
         bool onRopeChange = onAllChange;
-        //bool onRopeChange = no1PlayerGround && no2PlayerGround && !no1PlayerMoving && !no2PlayerMoving;
 
         playerCollider.material = onAllChange?defaultFriction:noFriction;
 
@@ -213,13 +199,9 @@ public class PlayerController : MonoBehaviour,IRespawnable
                 isHolding = false;
             }
         }
-
-        /*已废弃落地动作：如果有落地动作，必须让角色不能移动（不然就会在落地动作执行时滑行），但是短暂的不可移动会带给连续跳跃卡顿感
-        isFall = (isGround && rb.velocity.y < 0);
-        animator.SetBool("isFall", isFall);
-        */
     }
 
+    //与可移动物体建立关节
     private void HoldMoveableObject(bool isHoldButtonPressed,bool isLeft)
     {
         if (isHoldButtonPressed && !isHolding)
@@ -227,7 +209,6 @@ public class PlayerController : MonoBehaviour,IRespawnable
             GameObject moveableObject = isLeft ? MovebaleObject(playerTransform, -playerTransform.right) : MovebaleObject(playerTransform, playerTransform.right);
             if (moveableObject != null)
             {
-                //moveableObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
                 moveableObject.GetComponent<Collider>().isTrigger = true;
                 if (joint == null)
                 {
@@ -267,20 +248,7 @@ public class PlayerController : MonoBehaviour,IRespawnable
         }
     }
 
-    /*private void CaculateCameraToPlayer()   //世界坐标下玩家的输入量
-    {
-        if (playerNO == 1)
-        {
-            Vector3 cameraFwdProjection = new Vector3(Camera1.transform.forward.x, 0, Camera1.transform.forward.z).normalized;
-            playerMovementWorldSpace = cameraFwdProjection * Input.GetAxis("Player" + playerNO + "Vertical") + Camera1.transform.right*Input.GetAxis("Player" + playerNO + "Horizontal");
-        }
-        else
-        {
-            Vector3 cameraFwdProjection = new Vector3(Camera2.transform.forward.x, 0, Camera2.transform.forward.z).normalized;
-            playerMovementWorldSpace = cameraFwdProjection * Input.GetAxis("Player" + playerNO + "Vertical") + Camera1.transform.right * Input.GetAxis("Player" + playerNO + "Horizontal");
-        }
-    }*/
-
+    //检测可移动物体
     private GameObject MovebaleObject(Transform playerTransfrom,Vector3 handDirection)
     {
 
@@ -296,19 +264,6 @@ public class PlayerController : MonoBehaviour,IRespawnable
 
             GameObject gameObject = hit.collider.gameObject;
             return gameObject;
-
-            /*废弃：如果物体法线与玩家左侧/右侧朝向夹角大于45度
-            if (Vector3.Angle(-boxHitNormal, handDirection) > 45f)   
-            {
-                return null;
-            }
-            //否则返回这个物体
-            else
-            {
-                GameObject gameObject=hit.collider.gameObject;
-                return gameObject;
-            }*/
-
         }
         return null;
     }
@@ -364,13 +319,7 @@ public class PlayerController : MonoBehaviour,IRespawnable
         }
     }
 
-    /*IEnumerator Jump()//跳跃cd废除
-    {
-        readyToJump = false;
-        yield return new WaitForSeconds(jumpCD);
-        readyToJump = true;
-    }*/
-
+    //根据摄像头更新人物方向
     private void UpdatePlayerDirection()
     {
         if (playerNO == 1)
@@ -409,6 +358,7 @@ public class PlayerController : MonoBehaviour,IRespawnable
         }
     }
 
+    //存档
     public void Save()
     {
         respawnPosition = transform.position;
@@ -424,6 +374,7 @@ public class PlayerController : MonoBehaviour,IRespawnable
         }
     }
 
+    //GM功能，做的比较粗糙，供传送至三个关卡
     public void Transport(Transform destination)
     {
         transform.position = destination.position+new Vector3(0, 10, 0);

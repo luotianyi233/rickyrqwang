@@ -34,6 +34,7 @@ public class PressurePlateController : Switchable
         RespawnController.Instance.UnregisterRespawnable(this);
     }
 
+    //玩家或方块进入踏板区域
     private void OnCollisionEnter(Collision other)
     {
         if(other.collider.tag=="Player"||other.collider.tag=="Moveable")
@@ -46,6 +47,7 @@ public class PressurePlateController : Switchable
         }
     }
 
+    //玩家或方块离开踏板区域
     private void OnCollisionExit(Collision other)
     {
         if ((other.collider.tag=="Player" || other.collider.tag == "Moveable") && doorClass == DoorClass.REPEAT)

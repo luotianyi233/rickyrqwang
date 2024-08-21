@@ -4,15 +4,16 @@ using UnityEngine;
 public class FloatingBaseController : Switchable
 {
     private Vector3 startPoint;
-    public float moveDistanceX; // 平台移动的距离
-    public float moveDistanceY; // 平台移动的距离
-    public float moveDistanceZ; // 平台移动的距离
+    //平台三方向移动距离
+    public float moveDistanceX;
+    public float moveDistanceY; 
+    public float moveDistanceZ; 
     public float moveSpeed; // 平台移动的速度
 
     private Vector3 targetPosition; // 平台的目标位置
     private Coroutine moveCoroutine; // 用于存储当前的移动协程
 
-
+    //玩家或可移动物体进入平台区域时，将玩家或可移动物体设置为平台子物体，这样可以跟随平台移动
     void OnTriggerStay(Collider other)
     {
         if (other.gameObject.CompareTag("Player")|| other.gameObject.CompareTag("Moveable"))

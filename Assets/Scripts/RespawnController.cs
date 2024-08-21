@@ -9,7 +9,7 @@ public interface IRespawnable
 }
 public class RespawnController: MonoBehaviour
 {
-    public static RespawnController Instance { get; private set; }
+    public static RespawnController Instance { get; private set; }  //单例的全局访问点
 
     [SerializeField]
     public List<IRespawnable> respawnables = new List<IRespawnable>();

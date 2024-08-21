@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class SceneController : MonoBehaviour
+public class SceneController : MonoBehaviour    //标题与主场景切换，鼠标隐藏
 {
     private AsyncOperation asyncLoad;
 
     bool isVisible = false;
 
-    // Start is called before the first frame update
     private void Start()
     {
         Scene scene = SceneManager.GetActiveScene();
@@ -23,12 +22,11 @@ public class SceneController : MonoBehaviour
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
 
-            asyncLoad = SceneManager.LoadSceneAsync("MainGame");
+            asyncLoad = SceneManager.LoadSceneAsync("MainGame");    //预加载主场景
             asyncLoad.allowSceneActivation = false;
         }
     }
 
-    // Update is called once per frame
     void Update()
     {
         Scene scene = SceneManager.GetActiveScene();
@@ -38,7 +36,7 @@ public class SceneController : MonoBehaviour
         }
     }
 
-    void CursorControl()
+    void CursorControl()    //主场景中esc隐藏，esc显示
     {
         if (Input.GetKeyUp(KeyCode.Escape))
             if (isVisible == false)
@@ -65,7 +63,6 @@ public class SceneController : MonoBehaviour
     }
     public void StartGame()
     {
-        //SceneManager.LoadScene("MainGame");
         asyncLoad.allowSceneActivation = true;
     }
 }

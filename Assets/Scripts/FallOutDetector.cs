@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FallOutDetector : MonoBehaviour
+public class FallOutDetector : MonoBehaviour    //µô³öÆ½Ì¨¼ì²â
 {
     void OnTriggerEnter(Collider other)
     {

@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Animations;
 
-public class RopeSpawner : MonoBehaviour
+public class RopeSpawner : MonoBehaviour    //脚本生成绳子
 {
     [SerializeField]
     GameObject ropePartPrefab, parent;
@@ -57,7 +57,7 @@ public class RopeSpawner : MonoBehaviour
             if(x==0)
             {
                 Destroy(tmp.GetComponent<CharacterJoint>());
-                if(lockFirstPart)
+                if(lockFirstPart)   //锁住第一节
                 {
                     tmp.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
                 }
@@ -68,7 +68,7 @@ public class RopeSpawner : MonoBehaviour
             }
         }
 
-        if(lockLastPart)
+        if(lockLastPart)    //锁住最后一节
         {
             parent.transform.Find((parent.transform.childCount).ToString()).GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
         }

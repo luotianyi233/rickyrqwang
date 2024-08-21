@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TestButtonController : MonoBehaviour
+public class TestButtonController : MonoBehaviour   //≤‚ ‘”√
 {
     [SerializeField] private Switchable door;
     private void OnGUI()

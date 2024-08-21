@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Switchable : MonoBehaviour,ISwitchable,IRespawnable
+public abstract class Switchable : MonoBehaviour,ISwitchable,IRespawnable   //具有开关功能的抽象类
 {
     [SerializeField] protected SwitchState state = SwitchState.CLOSED;
 

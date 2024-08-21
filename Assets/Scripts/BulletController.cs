@@ -50,6 +50,7 @@ public class BulletController : MonoBehaviour
         }
     }
 
+    //moving状态遇到三类物体产生反馈
     private void OnCollisionEnter(Collision other)
     {
         if (other.gameObject.CompareTag("BreakableWall") && bulletState != BulletState.Hit)
@@ -89,6 +90,7 @@ public class BulletController : MonoBehaviour
         }
     }
 
+    //玩家眩晕cd
     IEnumerator ResetKnockBack()
     {
         yield return new WaitForSeconds(1f);

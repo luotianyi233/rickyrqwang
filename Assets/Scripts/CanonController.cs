@@ -93,7 +93,7 @@ public class CanonController : Switchable
         {
             case BossState.REST:
                 visualization.SetActive(false);
-                Broken();
+                Broken();   //  生成烟雾特效
                 break;
             case BossState.ACTIVE:
                 visualization.SetActive(true);
@@ -110,11 +110,13 @@ public class CanonController : Switchable
         }
     }
 
+    //REST状态检测敌人进入警戒范围
     bool FindPlayer()
     {
         if(isTargetLocked) 
             return nearestTarget != null;
 
+        //球体范围检测敌人
         var colliders = Physics.OverlapSphere(bossPos, sightRadius);
         foreach(var target in colliders)
         {
@@ -128,6 +130,7 @@ public class CanonController : Switchable
         return false;
     }
 
+    //REST状态/射击完成后检测到新敌人的转向
     void RotationToPlayer()
     {
         if (!isTargetLocked || nearestTarget == null ) return; 
@@ -143,7 +146,8 @@ public class CanonController : Switchable
         bossTransform.rotation = Quaternion.RotateTowards(bossTransform.rotation,targetRotation,maxRotationSpeed);
     }
 
-    void Shoot()    //发射逻辑
+    //发射逻辑
+    void Shoot()   
     {      
         
         bullet=Instantiate(bulletPrefab,launchPos.position,Quaternion.identity);
